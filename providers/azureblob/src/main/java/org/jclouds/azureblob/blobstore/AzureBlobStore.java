@@ -208,10 +208,15 @@ public class AzureBlobStore extends BaseBlobStore {
    @Override
    public String putBlob(String container, Blob blob, PutOptions options) {
       if (options.isMultipart()) {
-         return multipartUploadStrategy.get().execute(container, blob);
+         String result = multipartUploadStrategy.get().execute(container, blob);
+         if (result != null) {
+             sync.setBlobMetadata(container, blob.getMetadata().getName(),
+                        blob.getMetadata().getUserMetadata());
+         }
+         return result;
       }
       return putBlob(container, blob);
-   }
+    }
 
    /**
     * This implementation invokes {@link AzureBlobClient#deleteObject}
